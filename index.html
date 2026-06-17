@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LPHLM · Matchday</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080C18;
+    --gold:#F5C518;
+    --ink:#EAEEF6;
+    --muted:#8B93A7;
+    --draw:#7A8290;
+    --card:#0D1322;
+    --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Barlow",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  a{color:inherit}
+
+  /* ---------- top nav ---------- */
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(8,12,24,.92);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+    display:flex;flex-direction:column;gap:8px;
+    padding:10px 14px;}
+  .navrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .navrow.chips{flex-wrap:nowrap;overflow-x:auto;padding-top:8px;border-top:1px solid var(--line);
+    scrollbar-width:thin}
+  .nav-btn.round{font-family:"Anton";letter-spacing:.5px;font-size:15px;padding:6px 14px}
+  .brand{font-family:"Anton";letter-spacing:.5px;font-size:20px;color:var(--gold);margin-right:6px}
+  .brand small{color:var(--muted);font-family:"Barlow";font-weight:600;font-size:11px;letter-spacing:2px;display:block;margin-top:-4px}
+  .nav-btn{cursor:pointer;border:1px solid var(--line);background:#111829;color:var(--ink);
+    font-family:"Barlow Semi Condensed";font-weight:600;font-size:13px;letter-spacing:.4px;
+    padding:7px 12px;border-radius:999px;white-space:nowrap;transition:.15s}
+  .nav-btn:hover{border-color:var(--gold)}
+  .nav-btn.active{background:var(--gold);color:#10131c;border-color:var(--gold)}
+  .nav-btn .ft{font-family:"Anton";font-size:11px;margin-left:6px;opacity:.8}
+  .nav-btn .ft.upc{font-family:"Barlow Semi Condensed";font-weight:600;opacity:.5}
+  .nav-btn.active .ft.upc{opacity:.8}
+  .nav-spacer{flex:1}
+
+  .wrap{display:flex;justify-content:center;padding:20px 14px 60px}
+
+  /* ---------- flyer ---------- */
+  .flyer{position:relative;width:100%;max-width:700px;border-radius:18px;overflow:hidden;
+    border:1px solid var(--line);
+    background:
+      radial-gradient(120% 70% at 12% -5%, color-mix(in srgb, var(--home) 24%, transparent), transparent 55%),
+      radial-gradient(120% 70% at 90% 105%, color-mix(in srgb, var(--away) 22%, transparent), transparent 55%),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.028) 0 1px, transparent 1px 58px),
+      var(--bg);
+    padding:26px 24px 20px;}
+  .flyer::before{content:"";position:absolute;top:-34px;left:-60px;width:200px;height:60px;
+    background:var(--gold);transform:skewX(-22deg);opacity:.95}
+
+  .eyebrow{font-family:"Barlow Semi Condensed";font-weight:700;letter-spacing:3px;
+    font-size:12px;color:var(--gold);text-transform:uppercase}
+
+  .head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-top:14px}
+  .ko{line-height:1}
+  .ko .madrid{font-family:"Anton";font-size:40px;color:var(--gold);letter-spacing:1px}
+  .ko .madrid span{font-size:18px;color:var(--muted);margin-left:6px}
+  .ko .et{font-family:"Barlow Semi Condensed";font-weight:600;font-size:12px;color:var(--muted);
+    letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+  .group-pill{font-family:"Barlow Semi Condensed";font-weight:700;letter-spacing:1.5px;font-size:12px;
+    border:1px solid var(--gold);color:var(--gold);padding:6px 12px;border-radius:999px;white-space:nowrap;text-transform:uppercase}
+
+  .codes{display:flex;align-items:center;gap:14px;margin:18px 0 6px}
+  .code{font-family:"Anton";font-size:52px;line-height:.9;letter-spacing:1px}
+  .code.home{color:var(--home)}
+  .code.away{color:var(--away)}
+  .vs{font-family:"Barlow Semi Condensed";font-weight:700;color:var(--muted);font-size:18px;letter-spacing:2px}
+  .teamnames{font-family:"Barlow";color:var(--muted);font-size:13px;letter-spacing:.5px;margin-bottom:4px}
+
+  .ftbanner{display:inline-flex;align-items:center;gap:10px;margin:6px 0 2px;
+    font-family:"Anton";font-size:22px;background:#10182b;border:1px solid var(--line);
+    padding:6px 14px;border-radius:10px}
+  .ftbanner .lbl{font-family:"Barlow Semi Condensed";font-weight:700;font-size:11px;letter-spacing:2px;color:var(--gold)}
+
+  .angle{font-family:"Barlow";font-size:15px;color:var(--ink);opacity:.92;margin:14px 0 2px;line-height:1.4}
+
+  /* consensus bar */
+  .sec-label{font-family:"Barlow Semi Condensed";font-weight:700;letter-spacing:2.5px;font-size:12px;
+    color:var(--muted);text-transform:uppercase;margin:22px 0 8px;display:flex;align-items:center;gap:8px}
+  .sec-label::after{content:"";height:1px;flex:1;background:var(--line)}
+  .cbar{display:flex;height:18px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+  .cbar i{display:block;height:100%}
+  .cap{font-family:"Barlow Semi Condensed";font-weight:600;font-size:13px;color:var(--muted);margin-top:7px;letter-spacing:.4px}
+
+  /* picks */
+  .pick-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .pick-row:last-child{border-bottom:0}
+  .pill{font-family:"Anton";font-size:18px;min-width:64px;text-align:center;padding:7px 8px;border-radius:8px;
+    background:#10182b;letter-spacing:1px}
+  .pill.H{color:#0c1018;background:var(--home)}
+  .pill.A{color:#0c1018;background:var(--away)}
+  .pill.D{color:#0c1018;background:var(--draw)}
+  .names{flex:1;font-family:"Barlow";font-size:15px;line-height:1.35}
+  .tag{font-family:"Barlow Semi Condensed";font-weight:700;font-size:11px;letter-spacing:.6px;
+    padding:4px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+  .grade{font-family:"Anton";font-size:12px;padding:3px 8px;border-radius:6px;margin-left:6px}
+  .grade.exact{background:#1f6f43;color:#d7ffe9}
+  .grade.close{background:#7a6212;color:#fff4cf}
+  .grade.win{background:#22304d;color:#cfe0ff}
+
+  .me{color:var(--gold);font-weight:700;position:relative}
+  .you-tag{font-family:"Barlow Semi Condensed";font-weight:700;font-size:9px;letter-spacing:1px;
+    background:var(--gold);color:#10131c;border-radius:4px;padding:1px 4px;margin-left:5px;vertical-align:middle;text-transform:uppercase}
+
+  /* roast */
+  .roast{border-left:4px solid var(--gold);background:#0f1626;border-radius:0 10px 10px 0;
+    padding:12px 16px;margin-top:8px}
+  .roast h4{margin:0 0 6px;font-family:"Barlow Semi Condensed";font-weight:700;letter-spacing:1.5px;
+    font-size:12px;color:var(--gold);text-transform:uppercase}
+  .roast p{margin:6px 0;font-family:"Barlow";font-size:14px;line-height:1.45;color:var(--ink)}
+
+  /* scenarios */
+  .legend{font-family:"Barlow Semi Condensed";font-weight:600;font-size:12px;color:var(--muted);
+    margin-bottom:10px;letter-spacing:.4px}
+  .legend b{color:var(--ink)}
+  .scn{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+  .scn:last-child{border-bottom:0}
+  .scn.final{background:rgba(245,197,24,.06);border-radius:8px;padding:10px;border-bottom:0;margin-bottom:4px}
+  .scn .body{flex:1}
+  .scn .line{font-family:"Barlow";font-size:13.5px;line-height:1.4;margin:2px 0}
+  .scn .line .k{font-family:"Barlow Semi Condensed";font-weight:700;font-size:11px;letter-spacing:1px;margin-right:6px}
+  .scn .line .k.ex{color:#5fe0a0}
+  .scn .line .k.cl{color:var(--gold)}
+  .scn .miss{color:var(--muted);font-style:italic}
+  .finaltag{font-family:"Barlow Semi Condensed";font-weight:700;font-size:10px;letter-spacing:1.5px;color:var(--gold);display:block;margin-bottom:3px}
+
+  .footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:22px;
+    padding-top:14px;border-top:1px solid var(--line);
+    font-family:"Barlow Semi Condensed";font-weight:600;font-size:12px;color:var(--muted);letter-spacing:.6px}
+  .footer .star{color:var(--gold);font-family:"Anton";letter-spacing:.5px}
+
+  /* leaderboard */
+  .board{width:100%;max-width:700px}
+  .board h2{font-family:"Anton";font-size:30px;letter-spacing:1px;margin:0 0 4px}
+  .board .sub{color:var(--muted);font-family:"Barlow";margin:0 0 16px}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{padding:11px 10px;text-align:center;font-family:"Barlow Semi Condensed";font-weight:600;font-size:14px}
+  th{background:#0f1626;color:var(--muted);font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
+  td.name{text-align:left;font-family:"Barlow";font-weight:600;font-size:15px}
+  td.pts{font-family:"Anton";font-size:18px;color:var(--gold)}
+  tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+  tr.you td{background:rgba(245,197,24,.07)}
+  .rank{font-family:"Anton";color:var(--muted);width:34px}
+  .legendline{color:var(--muted);font-family:"Barlow";font-size:12.5px;margin-top:12px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- ============================================================= -->
+<!--  DATA — the only part you edit. One M(...) line per match:     -->
+<!--    M(HOME, AWAY, "DATE", "HH:MM", RESULT, { name:[h,a], ... }, opts?)  -->
+<!--  • RESULT is [home,away] once played, or null for an upcoming fixture. -->
+<!--  • HH:MM is the Madrid kick-off time (ET is derived automatically).    -->
+<!--  • opts (optional): { round, group, venue, angle } — all default sensibly. -->
+<!--  Scores pulled from the Superbru pool "LPHLM" (p=13214700).     -->
+<!-- ============================================================= -->
+<script>
+const M = (home, away, date, time, result, picks, opts={}) => ({
+  id: (home+"-"+away+"-"+date).toLowerCase().replace(/\s+/g,""),
+  round: opts.round || "Round 1", stage: opts.stage,
+  home, away, date, kickoff:{ madrid:time, et:opts.et },
+  group: opts.group || "", venue: opts.venue || "", angle: opts.angle || "",
+  result, picks
+});
+
+const LEAGUE = {
+  name: "LPHLM",
+  season: "World Cup 2026",
+  me: null,                  // set to a username to highlight it in gold + flag "you"; null = highlight nobody
+
+  matches: [
+    M("MEX","RSA","11 Jun","15:00",[2,0],{ "petr-cech":[3,1],"EmilianoG":[2,2],"arch":[2,0],"Mundial del Barrio":[1,0],"Edu Cannizzo":[2,1],"Bobby":[1,0],"marcom94":[2,0],"CF7":[2,1],"Miguelacho":[1,2],"jab11":[1,0],"El Father":[2,1] }),
+    M("KOR","CZE","11 Jun","22:00",[2,1],{ "petr-cech":[2,1],"EmilianoG":[1,2],"arch":[1,2],"Mundial del Barrio":[0,2],"Edu Cannizzo":[0,1],"Bobby":[1,1],"marcom94":[1,1],"CF7":[1,0],"Miguelacho":[3,1],"jab11":[2,1],"El Father":[1,1] }),
+    M("CAN","BHI","12 Jun","15:00",[1,1],{ "petr-cech":[1,1],"EmilianoG":[1,1],"arch":[1,1],"Mundial del Barrio":[1,1],"Edu Cannizzo":[0,1],"Bobby":[1,0],"marcom94":[2,0],"CF7":[2,1],"Miguelacho":[2,0],"jab11":[2,0],"El Father":[2,1] }),
+    M("USA","PAR","12 Jun","21:00",[4,1],{ "petr-cech":[2,1],"EmilianoG":[2,1],"arch":[2,2],"Mundial del Barrio":[2,1],"Edu Cannizzo":[1,2],"Bobby":[1,0],"marcom94":[2,1],"CF7":[1,0],"Miguelacho":[3,0],"jab11":[2,2],"El Father":[1,2] }),
+    M("QAT","SUI","13 Jun","15:00",[1,1],{ "petr-cech":[1,3],"EmilianoG":[0,2],"arch":[0,2],"Mundial del Barrio":[0,2],"Edu Cannizzo":[0,3],"Bobby":[0,2],"marcom94":[0,2],"CF7":[0,3],"Miguelacho":[0,2],"jab11":[1,2],"El Father":[0,2] }),
+    M("BRA","MOR","13 Jun","18:00",[1,1],{ "petr-cech":[2,1],"EmilianoG":[4,2],"arch":[3,1],"Mundial del Barrio":[2,1],"Edu Cannizzo":[2,0],"Bobby":[1,0],"marcom94":[3,1],"CF7":[0,1],"Miguelacho":[1,2],"jab11":[3,2],"El Father":[2,1] }),
+    M("HAI","SCO","13 Jun","21:00",[0,1],{ "petr-cech":[0,3],"EmilianoG":[0,1],"arch":[0,2],"Mundial del Barrio":[0,0],"Edu Cannizzo":[0,2],"Bobby":[0,1],"marcom94":[0,2],"CF7":[0,3],"Miguelacho":[0,3],"jab11":[0,0],"El Father":[0,2] }),
+    M("AUS","TUR","14 Jun","00:00",[2,0],{ "petr-cech":[1,3],"EmilianoG":[1,1],"arch":[0,1],"Mundial del Barrio":[1,2],"Edu Cannizzo":[0,2],"Bobby":[0,1],"marcom94":[0,1],"CF7":[0,2],"Miguelacho":[0,2],"jab11":[0,1],"El Father":[1,2] }),
+    M("GER","CUR","14 Jun","13:00",[7,1],{ "petr-cech":[6,0],"EmilianoG":[2,0],"arch":[4,0],"Mundial del Barrio":[3,0],"Edu Cannizzo":[3,0],"Bobby":[3,0],"marcom94":[4,0],"CF7":[5,0],"Miguelacho":[6,0],"jab11":[4,0],"El Father":[4,0] }),
+    M("NED","JPN","14 Jun","16:00",[2,2],{ "petr-cech":[2,2],"EmilianoG":[2,2],"arch":[1,1],"Mundial del Barrio":[2,2],"Edu Cannizzo":[2,0],"Bobby":[1,1],"marcom94":[2,1],"CF7":[1,0],"Miguelacho":[4,1],"jab11":[1,1],"El Father":[2,1] }),
+    M("CIV","ECU","14 Jun","19:00",[1,0],{ "petr-cech":[1,0],"EmilianoG":[0,2],"arch":[0,0],"Mundial del Barrio":[2,1],"Edu Cannizzo":[0,2],"Bobby":[0,1],"marcom94":[0,1],"CF7":[0,2],"Miguelacho":[1,3],"jab11":[0,2],"El Father":[1,2] }),
+    M("SWE","TUN","14 Jun","22:00",[5,1],{ "petr-cech":[1,1],"EmilianoG":[1,1],"arch":[3,0],"Mundial del Barrio":[1,1],"Edu Cannizzo":[2,0],"Bobby":[1,0],"marcom94":[2,0],"CF7":[2,1],"Miguelacho":[2,1],"jab11":[1,0],"El Father":[2,0] }),
+    M("ESP","CPV","15 Jun","12:00",[0,0],{ "petr-cech":[4,0],"EmilianoG":[3,0],"arch":[3,0],"Mundial del Barrio":[4,0],"Edu Cannizzo":[4,0],"Bobby":[3,0],"marcom94":[3,0],"CF7":[4,0],"Miguelacho":[7,0],"jab11":[2,0],"El Father":[3,0] }),
+    M("BEL","EGY","15 Jun","15:00",[1,1],{ "petr-cech":[1,3],"EmilianoG":[2,1],"arch":[2,1],"Mundial del Barrio":[2,0],"Edu Cannizzo":[1,1],"Bobby":[1,0],"marcom94":[2,1],"CF7":[2,1],"Miguelacho":[1,2],"jab11":[2,1],"El Father":[2,1] }),
+    M("KSA","URU","15 Jun","18:00",[1,1],{ "petr-cech":[0,3],"EmilianoG":[1,0],"arch":[0,2],"Mundial del Barrio":[1,2],"Edu Cannizzo":[1,3],"Bobby":[0,1],"marcom94":[0,2],"CF7":[0,2],"Miguelacho":[2,3],"jab11":[0,2],"El Father":[0,2] }),
+    M("IRN","NZL","15 Jun","21:00",[2,2],{ "petr-cech":[2,1],"EmilianoG":[1,0],"arch":[2,1],"Mundial del Barrio":[1,0],"Edu Cannizzo":[1,1],"Bobby":[1,0],"marcom94":[2,1],"CF7":[1,0],"Miguelacho":[2,0],"jab11":[1,0],"El Father":[1,0] }),
+    M("FRA","SEN","16 Jun","15:00",[3,1],{ "petr-cech":[3,2],"EmilianoG":[3,1],"arch":[2,1],"Mundial del Barrio":[2,1],"Edu Cannizzo":[3,0],"Bobby":[1,0],"marcom94":[2,0],"CF7":[3,0],"Miguelacho":[3,2],"jab11":[1,1],"El Father":[2,0] }),
+
+    // ---- Upcoming / live Round 1 fixtures: locked, so all picks are visible. result:null → Preview mode. ----
+    M("IRQ","NOR","16 Jun","18:00",[1,4],{ "petr-cech":[0,2],"EmilianoG":[1,3],"arch":[0,4],"Mundial del Barrio":[0,1],"Edu Cannizzo":[0,2],"Bobby":[0,2],"marcom94":[0,3],"CF7":[0,2],"Miguelacho":[1,4],"jab11":[0,1],"El Father":[0,2] }, { venue:"Gillette Stadium, Foxborough" }),
+    M("ARG","ALG","16 Jun","21:00",null,{ "petr-cech":[3,1],"EmilianoG":[3,1],"arch":[2,0],"Mundial del Barrio":[3,0],"Edu Cannizzo":[4,0],"Bobby":[2,0],"marcom94":[2,0],"CF7":[2,0],"Miguelacho":[3,1],"jab11":[1,0],"El Father":[3,1] }, { group:"Group J", venue:"Arrowhead Stadium, Kansas City" }),
+    M("AUT","JOR","17 Jun","00:00",null,{ "petr-cech":[2,1],"EmilianoG":[0,0],"arch":[2,0],"Mundial del Barrio":[1,0],"Edu Cannizzo":[1,0],"Bobby":[2,0],"marcom94":[2,0],"CF7":[2,0],"Miguelacho":[3,0],"jab11":[1,1],"El Father":[2,0] }, { group:"Group J", venue:"Levi's Stadium, Santa Clara" }),
+    M("POR","DRC","17 Jun","13:00",null,{ "petr-cech":[3,1],"EmilianoG":[4,1],"arch":[3,1],"Mundial del Barrio":[2,0],"Edu Cannizzo":[2,0],"Bobby":[2,0],"marcom94":[2,0],"CF7":[3,0],"Miguelacho":[4,0],"jab11":[2,1],"El Father":[2,0] }, { group:"Group K", venue:"NRG Stadium, Houston" }),
+    M("ENG","CRO","17 Jun","16:00",null,{ "petr-cech":[3,1],"EmilianoG":[2,2],"arch":[2,1],"Mundial del Barrio":[3,1],"Edu Cannizzo":[2,1],"Bobby":[1,0],"marcom94":[2,0],"CF7":[1,0],"Miguelacho":[2,1],"jab11":[2,2],"El Father":[1,1] }, { group:"Group L", venue:"AT&T Stadium, Dallas" }),
+    M("GHA","PAN","17 Jun","19:00",null,{ "petr-cech":[2,1],"EmilianoG":[0,0],"arch":[2,0],"Mundial del Barrio":[2,0],"Edu Cannizzo":[1,0],"Bobby":[1,1],"marcom94":[1,0],"CF7":[1,0],"Miguelacho":[2,1],"jab11":[1,1],"El Father":[2,1] }, { group:"Group L", venue:"BMO Field, Toronto" }),
+    M("UZB","COL","17 Jun","22:00",null,{ "petr-cech":[1,2],"EmilianoG":[1,3],"arch":[0,1],"Mundial del Barrio":[0,1],"Edu Cannizzo":[0,3],"Bobby":[0,2],"marcom94":[0,2],"CF7":[0,2],"Miguelacho":[1,3],"jab11":[0,3],"El Father":[1,2] }, { group:"Group K", venue:"Estadio Azteca, Mexico City" }),
+
+    // ===================== ROUND 2 (18–23 Jun) — locked, all predictions visible =====================
+    M("CZE","RSA","18 Jun","12:00",null,{ "Mundial del Barrio":[2,1],"marcom94":[2,1],"CF7":[2,0],"EmilianoG":[2,0],"Miguelacho":[2,0],"arch":[2,0],"petr-cech":[2,0],"Bobby":[1,0],"Edu Cannizzo":[1,0],"El Father":[1,0],"jab11":[1,2] }, { round:"Round 2", group:"Group A", venue:"Mercedes-Benz Stadium, Atlanta" }),
+    M("SUI","BHI","18 Jun","15:00",null,{ "petr-cech":[3,1],"Miguelacho":[2,1],"arch":[2,1],"marcom94":[2,1],"El Father":[2,0],"EmilianoG":[2,0],"Mundial del Barrio":[2,0],"Bobby":[1,0],"CF7":[1,0],"Edu Cannizzo":[1,1],"jab11":[1,1] }, { round:"Round 2", group:"Group B", venue:"SoFi Stadium, Los Angeles" }),
+    M("CAN","QAT","18 Jun","18:00",null,{ "El Father":[3,1],"arch":[3,1],"Miguelacho":[3,0],"marcom94":[2,1],"Bobby":[2,0],"CF7":[2,0],"petr-cech":[2,0],"jab11":[1,0],"Edu Cannizzo":[0,0],"EmilianoG":[1,1],"Mundial del Barrio":[1,1] }, { round:"Round 2", group:"Group B", venue:"BC Place Stadium, Vancouver" }),
+    M("MEX","KOR","18 Jun","21:00",null,{ "EmilianoG":[3,1],"petr-cech":[3,1],"CF7":[2,1],"El Father":[2,1],"Mundial del Barrio":[2,1],"marcom94":[2,1],"Bobby":[1,0],"Edu Cannizzo":[1,0],"arch":[1,1],"jab11":[1,1],"Miguelacho":[1,3] }, { round:"Round 2", group:"Group A" }),
+    M("USA","AUS","19 Jun","15:00",null,{ "Edu Cannizzo":[2,1],"El Father":[2,1],"arch":[2,1],"jab11":[2,1],"EmilianoG":[2,0],"Miguelacho":[2,0],"marcom94":[2,0],"petr-cech":[2,0],"Bobby":[1,0],"CF7":[1,0],"Mundial del Barrio":[1,2] }, { round:"Round 2", group:"Group D", venue:"Lumen Field, Seattle" }),
+    M("SCO","MOR","19 Jun","18:00",null,{ "El Father":[1,1],"Bobby":[0,1],"marcom94":[0,1],"CF7":[0,2],"Edu Cannizzo":[0,2],"jab11":[0,2],"Miguelacho":[0,3],"arch":[1,2],"EmilianoG":[1,3],"Mundial del Barrio":[1,3],"petr-cech":[1,4] }, { round:"Round 2", group:"Group C", venue:"Gillette Stadium, Foxborough" }),
+    M("BRA","HAI","19 Jun","20:30",null,{ "petr-cech":[5,1],"Miguelacho":[5,0],"marcom94":[5,0],"arch":[4,1],"CF7":[4,0],"Edu Cannizzo":[4,0],"El Father":[4,0],"EmilianoG":[4,0],"Mundial del Barrio":[4,0],"Bobby":[3,0],"jab11":[3,0] }, { round:"Round 2", group:"Group C", venue:"Lincoln Financial Field, Philadelphia" }),
+    M("TUR","PAR","20 Jun","00:00",null,{ "petr-cech":[3,2],"Miguelacho":[3,1],"Mundial del Barrio":[3,1],"CF7":[2,1],"EmilianoG":[2,1],"marcom94":[1,0],"Bobby":[1,1],"El Father":[1,1],"Edu Cannizzo":[2,2],"arch":[2,2],"jab11":[1,2] }, { round:"Round 2", group:"Group D", venue:"Levi's Stadium, Santa Clara" }),
+    M("NED","SWE","20 Jun","13:00",null,{ "Edu Cannizzo":[3,1],"EmilianoG":[3,1],"El Father":[2,1],"Miguelacho":[2,1],"marcom94":[2,1],"Mundial del Barrio":[2,0],"arch":[2,0],"Bobby":[1,0],"CF7":[1,0],"jab11":[1,0],"petr-cech":[1,0] }, { round:"Round 2", group:"Group F", venue:"NRG Stadium, Houston" }),
+    M("GER","CIV","20 Jun","16:00",null,{ "EmilianoG":[4,0],"Miguelacho":[3,2],"Edu Cannizzo":[3,1],"Mundial del Barrio":[3,1],"El Father":[2,1],"petr-cech":[2,1],"CF7":[2,0],"jab11":[2,0],"marcom94":[2,0],"Bobby":[1,0],"arch":[1,0] }, { round:"Round 2", group:"Group E", venue:"BMO Field, Toronto" }),
+    M("ECU","CUR","20 Jun","20:00",null,{ "Miguelacho":[4,0],"CF7":[3,0],"Edu Cannizzo":[3,0],"El Father":[3,0],"marcom94":[3,0],"petr-cech":[3,0],"Bobby":[2,0],"EmilianoG":[2,0],"Mundial del Barrio":[2,0],"arch":[2,0],"jab11":[2,0] }, { round:"Round 2", group:"Group E", venue:"Arrowhead Stadium, Kansas City" }),
+    M("TUN","JPN","21 Jun","00:00",null,{ "Bobby":[0,1],"jab11":[0,1],"CF7":[0,2],"Edu Cannizzo":[0,2],"El Father":[0,2],"EmilianoG":[0,2],"arch":[0,2],"marcom94":[0,2],"petr-cech":[0,2],"Miguelacho":[1,3],"Mundial del Barrio":[1,3] }, { round:"Round 2", group:"Group F" }),
+    M("ESP","KSA","21 Jun","12:00",null,{ "Miguelacho":[4,1],"petr-cech":[4,1],"EmilianoG":[3,1],"Mundial del Barrio":[3,1],"Edu Cannizzo":[3,0],"Bobby":[2,0],"CF7":[2,0],"El Father":[2,0],"arch":[2,0],"jab11":[2,0],"marcom94":[2,0] }, { round:"Round 2", group:"Group H", venue:"Mercedes-Benz Stadium, Atlanta" }),
+    M("BEL","IRN","21 Jun","15:00",null,{ "Edu Cannizzo":[3,0],"Miguelacho":[2,1],"Bobby":[2,0],"CF7":[2,0],"El Father":[2,0],"EmilianoG":[2,0],"jab11":[2,0],"marcom94":[2,0],"arch":[1,0],"petr-cech":[1,0],"Mundial del Barrio":[1,1] }, { round:"Round 2", group:"Group G", venue:"SoFi Stadium, Los Angeles" }),
+    M("URU","CPV","21 Jun","18:00",null,{ "EmilianoG":[3,1],"CF7":[3,0],"El Father":[3,0],"Miguelacho":[3,0],"Mundial del Barrio":[3,0],"arch":[2,1],"Bobby":[2,0],"Edu Cannizzo":[2,0],"marcom94":[2,0],"petr-cech":[2,0],"jab11":[1,0] }, { round:"Round 2", group:"Group H", venue:"Hard Rock Stadium, Miami Gardens" }),
+    M("NZL","EGY","21 Jun","21:00",null,{ "EmilianoG":[0,0],"Bobby":[0,1],"CF7":[0,1],"Edu Cannizzo":[0,1],"El Father":[0,1],"jab11":[0,1],"marcom94":[0,1],"Mundial del Barrio":[0,2],"arch":[0,3],"Miguelacho":[1,3],"petr-cech":[1,3] }, { round:"Round 2", group:"Group G", venue:"BC Place Stadium, Vancouver" }),
+    M("ARG","AUT","22 Jun","13:00",null,{ "petr-cech":[3,1],"Edu Cannizzo":[3,0],"EmilianoG":[3,0],"marcom94":[3,0],"Miguelacho":[2,1],"Mundial del Barrio":[2,1],"arch":[2,1],"jab11":[2,1],"CF7":[2,0],"El Father":[2,0],"Bobby":[1,0] }, { round:"Round 2", group:"Group J", venue:"AT&T Stadium, Dallas" }),
+    M("FRA","IRQ","22 Jun","17:00",null,{ "petr-cech":[4,1],"El Father":[4,0],"Miguelacho":[4,0],"EmilianoG":[3,1],"CF7":[3,0],"Edu Cannizzo":[3,0],"Mundial del Barrio":[3,0],"arch":[3,0],"jab11":[3,0],"marcom94":[3,0],"Bobby":[2,0] }, { round:"Round 2", group:"Group I", venue:"Lincoln Financial Field, Philadelphia" }),
+    M("NOR","SEN","22 Jun","20:00",null,{ "Miguelacho":[3,2],"CF7":[2,1],"marcom94":[2,1],"EmilianoG":[2,0],"Edu Cannizzo":[1,0],"Bobby":[1,1],"Mundial del Barrio":[2,2],"arch":[2,2],"jab11":[2,2],"petr-cech":[3,3],"El Father":[1,2] }, { round:"Round 2", group:"Group I", venue:"MetLife Stadium, East Rutherford" }),
+    M("JOR","ALG","22 Jun","23:00",null,{ "petr-cech":[2,1],"CF7":[2,0],"Edu Cannizzo":[0,0],"EmilianoG":[1,1],"Mundial del Barrio":[1,1],"jab11":[1,1],"Bobby":[0,1],"marcom94":[0,1],"El Father":[0,2],"Miguelacho":[0,2],"arch":[0,3] }, { round:"Round 2", group:"Group J", venue:"Levi's Stadium, Santa Clara" }),
+    M("POR","UZB","23 Jun","13:00",null,{ "Miguelacho":[4,1],"EmilianoG":[3,1],"El Father":[3,0],"Bobby":[2,0],"CF7":[2,0],"Edu Cannizzo":[2,0],"Mundial del Barrio":[2,0],"arch":[2,0],"marcom94":[2,0],"jab11":[1,0],"petr-cech":[1,0] }, { round:"Round 2", group:"Group K", venue:"NRG Stadium, Houston" }),
+    M("ENG","GHA","23 Jun","16:00",null,{ "petr-cech":[3,1],"marcom94":[3,0],"Edu Cannizzo":[2,1],"Mundial del Barrio":[2,1],"Bobby":[2,0],"CF7":[2,0],"El Father":[2,0],"EmilianoG":[2,0],"Miguelacho":[2,0],"arch":[2,0],"jab11":[1,0] }, { round:"Round 2", group:"Group L", venue:"Gillette Stadium, Foxborough" }),
+    M("PAN","CRO","23 Jun","19:00",null,{ "jab11":[1,1],"Bobby":[0,1],"CF7":[0,1],"El Father":[0,2],"Mundial del Barrio":[0,2],"marcom94":[0,2],"EmilianoG":[0,3],"arch":[0,3],"Miguelacho":[1,2],"petr-cech":[1,2],"Edu Cannizzo":[1,3] }, { round:"Round 2", group:"Group L", venue:"BMO Field, Toronto" }),
+    M("COL","DRC","23 Jun","22:00",null,{ "petr-cech":[3,2],"Miguelacho":[3,1],"CF7":[3,0],"Mundial del Barrio":[2,1],"El Father":[2,0],"EmilianoG":[2,0],"arch":[2,0],"jab11":[2,0],"marcom94":[2,0],"Bobby":[1,0],"Edu Cannizzo":[1,0] }, { round:"Round 2", group:"Group K" }),
+
+    // ===================== ROUND 3 (24–27 Jun) — locked, all predictions visible =====================
+    M("BHI","QAT","24 Jun","15:00",null,{ "marcom94":[2,1],"CF7":[2,0],"El Father":[2,0],"arch":[2,0],"Bobby":[1,0],"Edu Cannizzo":[1,0],"Mundial del Barrio":[1,0],"petr-cech":[1,0],"EmilianoG":[0,0],"jab11":[0,1],"Miguelacho":[0,2] }, { round:"Round 3", group:"Group B", venue:"Lumen Field, Seattle" }),
+    M("SUI","CAN","24 Jun","15:00",null,{ "arch":[2,1],"marcom94":[2,1],"CF7":[2,0],"EmilianoG":[2,0],"petr-cech":[2,0],"Mundial del Barrio":[1,0],"Bobby":[1,1],"El Father":[1,1],"jab11":[2,2],"Edu Cannizzo":[0,1],"Miguelacho":[1,3] }, { round:"Round 3", group:"Group B", venue:"BC Place Stadium, Vancouver" }),
+    M("MOR","HAI","24 Jun","18:00",null,{ "Miguelacho":[6,0],"petr-cech":[4,2],"EmilianoG":[3,1],"arch":[3,1],"CF7":[3,0],"El Father":[3,0],"marcom94":[3,0],"Bobby":[2,0],"Edu Cannizzo":[2,0],"Mundial del Barrio":[2,0],"jab11":[2,0] }, { round:"Round 3", group:"Group C", venue:"Mercedes-Benz Stadium, Atlanta" }),
+    M("SCO","BRA","24 Jun","18:00",null,{ "Bobby":[0,1],"petr-cech":[0,1],"CF7":[0,2],"Edu Cannizzo":[0,2],"El Father":[0,2],"marcom94":[0,2],"EmilianoG":[0,3],"jab11":[0,3],"Mundial del Barrio":[1,2],"arch":[1,2],"Miguelacho":[1,3] }, { round:"Round 3", group:"Group C", venue:"Hard Rock Stadium, Miami Gardens" }),
+    M("CZE","MEX","24 Jun","21:00",null,{ "Edu Cannizzo":[1,1],"Mundial del Barrio":[1,1],"EmilianoG":[2,2],"Miguelacho":[2,2],"arch":[2,2],"Bobby":[0,1],"marcom94":[0,1],"CF7":[1,2],"El Father":[1,2],"jab11":[1,2],"petr-cech":[1,2] }, { round:"Round 3", group:"Group A" }),
+    M("RSA","KOR","24 Jun","21:00",null,{ "Edu Cannizzo":[1,0],"El Father":[1,1],"Mundial del Barrio":[1,1],"petr-cech":[2,2],"Bobby":[0,1],"EmilianoG":[0,1],"arch":[0,2],"CF7":[1,2],"jab11":[1,2],"marcom94":[1,2],"Miguelacho":[1,3] }, { round:"Round 3", group:"Group A" }),
+    M("CUR","CIV","25 Jun","16:00",null,{ "Edu Cannizzo":[0,1],"Bobby":[0,2],"CF7":[0,2],"marcom94":[0,2],"EmilianoG":[0,3],"Miguelacho":[0,3],"petr-cech":[0,3],"jab11":[1,2],"El Father":[1,3],"Mundial del Barrio":[1,3],"arch":[1,3] }, { round:"Round 3", group:"Group E", venue:"Lincoln Financial Field, Philadelphia" }),
+    M("ECU","GER","25 Jun","16:00",null,{ "Miguelacho":[3,2],"CF7":[1,0],"Edu Cannizzo":[1,1],"arch":[1,1],"jab11":[1,1],"petr-cech":[2,2],"Bobby":[0,1],"El Father":[1,2],"Mundial del Barrio":[1,2],"marcom94":[1,2],"EmilianoG":[1,3] }, { round:"Round 3", group:"Group E", venue:"MetLife Stadium, East Rutherford" }),
+    M("JPN","SWE","25 Jun","19:00",null,{ "Bobby":[2,1],"El Father":[2,1],"EmilianoG":[2,1],"arch":[2,1],"marcom94":[2,1],"CF7":[1,0],"petr-cech":[1,0],"Edu Cannizzo":[1,1],"Mundial del Barrio":[1,1],"jab11":[1,1],"Miguelacho":[2,2] }, { round:"Round 3", group:"Group F", venue:"AT&T Stadium, Dallas" }),
+    M("TUN","NED","25 Jun","19:00",null,{ "Bobby":[0,2],"CF7":[0,2],"Edu Cannizzo":[0,2],"El Father":[0,2],"Miguelacho":[0,2],"jab11":[0,2],"marcom94":[0,2],"EmilianoG":[0,3],"arch":[0,3],"Mundial del Barrio":[1,2],"petr-cech":[1,3] }, { round:"Round 3", group:"Group F", venue:"Arrowhead Stadium, Kansas City" }),
+    M("PAR","AUS","25 Jun","22:00",null,{ "Edu Cannizzo":[2,1],"Miguelacho":[2,1],"marcom94":[2,1],"petr-cech":[2,1],"CF7":[2,0],"EmilianoG":[2,0],"jab11":[2,0],"El Father":[1,0],"arch":[1,0],"Mundial del Barrio":[1,1],"Bobby":[0,1] }, { round:"Round 3", group:"Group D", venue:"Levi's Stadium, Santa Clara" }),
+    M("TUR","USA","25 Jun","22:00",null,{ "EmilianoG":[2,1],"CF7":[2,0],"Mundial del Barrio":[2,0],"Edu Cannizzo":[1,1],"El Father":[1,1],"arch":[1,1],"marcom94":[1,1],"Bobby":[2,2],"petr-cech":[2,2],"jab11":[1,2],"Miguelacho":[2,3] }, { round:"Round 3", group:"Group D", venue:"SoFi Stadium, Los Angeles" }),
+    M("NOR","FRA","26 Jun","15:00",null,{ "Bobby":[0,1],"CF7":[0,2],"El Father":[1,2],"marcom94":[1,2],"Edu Cannizzo":[1,3],"EmilianoG":[1,3],"Mundial del Barrio":[1,3],"jab11":[1,3],"petr-cech":[1,4],"Miguelacho":[2,3],"arch":[2,4] }, { round:"Round 3", group:"Group I", venue:"Gillette Stadium, Foxborough" }),
+    M("SEN","IRQ","26 Jun","15:00",null,{ "Miguelacho":[4,0],"Bobby":[2,0],"El Father":[2,0],"arch":[2,0],"jab11":[2,0],"marcom94":[2,0],"petr-cech":[2,0],"CF7":[1,0],"Mundial del Barrio":[1,0],"EmilianoG":[1,1],"Edu Cannizzo":[2,2] }, { round:"Round 3", group:"Group I", venue:"BMO Field, Toronto" }),
+    M("CPV","KSA","26 Jun","20:00",null,{ "petr-cech":[0,0],"Bobby":[1,1],"Mundial del Barrio":[1,1],"arch":[1,1],"Edu Cannizzo":[2,2],"jab11":[0,1],"CF7":[0,2],"EmilianoG":[0,2],"marcom94":[0,2],"Miguelacho":[0,3],"El Father":[1,2] }, { round:"Round 3", group:"Group H", venue:"NRG Stadium, Houston" }),
+    M("URU","ESP","26 Jun","20:00",null,{ "El Father":[1,1],"EmilianoG":[2,2],"jab11":[2,2],"CF7":[0,1],"arch":[0,2],"petr-cech":[0,2],"Bobby":[1,2],"Edu Cannizzo":[1,2],"Mundial del Barrio":[1,2],"marcom94":[1,2],"Miguelacho":[1,3] }, { round:"Round 3", group:"Group H" }),
+    M("EGY","IRN","26 Jun","23:00",null,{ "petr-cech":[3,1],"Miguelacho":[2,0],"CF7":[1,0],"El Father":[1,0],"jab11":[1,0],"marcom94":[1,0],"Mundial del Barrio":[0,0],"Bobby":[1,1],"Edu Cannizzo":[1,1],"EmilianoG":[1,1],"arch":[1,1] }, { round:"Round 3", group:"Group G", venue:"Lumen Field, Seattle" }),
+    M("NZL","BEL","26 Jun","23:00",null,{ "Mundial del Barrio":[0,1],"Bobby":[0,2],"CF7":[0,2],"El Father":[0,2],"EmilianoG":[0,2],"Miguelacho":[0,2],"jab11":[0,2],"marcom94":[0,2],"arch":[0,3],"Edu Cannizzo":[1,2],"petr-cech":[1,4] }, { round:"Round 3", group:"Group G", venue:"BC Place Stadium, Vancouver" }),
+    M("CRO","GHA","27 Jun","17:00",null,{ "Bobby":[2,1],"El Father":[2,1],"arch":[2,1],"marcom94":[2,1],"petr-cech":[2,1],"CF7":[2,0],"Edu Cannizzo":[2,0],"EmilianoG":[2,0],"Mundial del Barrio":[1,1],"jab11":[1,1],"Miguelacho":[1,2] }, { round:"Round 3", group:"Group L", venue:"Lincoln Financial Field, Philadelphia" }),
+    M("PAN","ENG","27 Jun","17:00",null,{ "Bobby":[0,2],"CF7":[0,3],"Edu Cannizzo":[0,3],"El Father":[0,3],"arch":[0,4],"marcom94":[0,5],"Mundial del Barrio":[1,2],"EmilianoG":[1,3],"Miguelacho":[1,3],"jab11":[1,3],"petr-cech":[1,4] }, { round:"Round 3", group:"Group L", venue:"MetLife Stadium, East Rutherford" }),
+    M("COL","POR","27 Jun","19:30",null,{ "Bobby":[1,1],"Edu Cannizzo":[2,2],"jab11":[2,2],"CF7":[1,2],"El Father":[1,2],"EmilianoG":[1,2],"Mundial del Barrio":[1,2],"arch":[1,2],"marcom94":[1,2],"petr-cech":[1,3],"Miguelacho":[1,4] }, { round:"Round 3", group:"Group K", venue:"Hard Rock Stadium, Miami Gardens" }),
+    M("DRC","UZB","27 Jun","19:30",null,{ "Miguelacho":[2,0],"CF7":[1,0],"Edu Cannizzo":[1,0],"Mundial del Barrio":[0,0],"arch":[0,0],"Bobby":[1,1],"El Father":[1,1],"EmilianoG":[1,1],"jab11":[1,1],"marcom94":[1,1],"petr-cech":[0,1] }, { round:"Round 3", group:"Group K", venue:"Mercedes-Benz Stadium, Atlanta" }),
+    M("ALG","AUT","27 Jun","22:00",null,{ "Miguelacho":[3,1],"arch":[2,1],"Edu Cannizzo":[0,0],"El Father":[1,1],"marcom94":[1,1],"CF7":[0,1],"Mundial del Barrio":[0,1],"EmilianoG":[0,2],"jab11":[0,2],"Bobby":[1,2],"petr-cech":[1,2] }, { round:"Round 3", group:"Group J", venue:"Arrowhead Stadium, Kansas City" }),
+    M("JOR","ARG","27 Jun","22:00",null,{ "CF7":[0,2],"jab11":[0,2],"Bobby":[0,3],"El Father":[0,3],"Mundial del Barrio":[0,3],"arch":[0,3],"marcom94":[0,3],"Miguelacho":[0,4],"Edu Cannizzo":[0,5],"EmilianoG":[1,3],"petr-cech":[1,3] }, { round:"Round 3", group:"Group J", venue:"AT&T Stadium, Dallas" })
+  ]
+};
+
+// Optional per-code overrides. We ship sensible national colours below;
+// add/override here if you want, e.g. NATION.BEL = {name:"Belgium", color:"#FFC400"}.
+const NATION = {
+  MEX:{name:"Mexico",                 color:"#2FB36B"},
+  RSA:{name:"South Africa",           color:"#E23B4C"},
+  KOR:{name:"South Korea",            color:"#E2253B"},
+  CZE:{name:"Czechia",                color:"#2D6BDF"},
+  CAN:{name:"Canada",                 color:"#E23B4C"},
+  BHI:{name:"Bosnia & Herzegovina",   color:"#2D6BDF"},
+  USA:{name:"USA",                    color:"#3C6BE0"},
+  PAR:{name:"Paraguay",               color:"#E2253B"},
+  QAT:{name:"Qatar",                  color:"#C0395B"},
+  SUI:{name:"Switzerland",            color:"#FF3B30"},
+  BRA:{name:"Brazil",                 color:"#FFCB05"},
+  MOR:{name:"Morocco",                color:"#C8102E"},
+  HAI:{name:"Haiti",                  color:"#D21034"},
+  SCO:{name:"Scotland",               color:"#2D6BDF"},
+  AUS:{name:"Australia",              color:"#FFCB05"},
+  TUR:{name:"Türkiye",                color:"#E30A17"},
+  GER:{name:"Germany",                color:"#C9CFD8"},
+  CUR:{name:"Curaçao",                color:"#2D6BDF"},
+  NED:{name:"Netherlands",            color:"#FF7A1A"},
+  JPN:{name:"Japan",                  color:"#E2253B"},
+  CIV:{name:"Ivory Coast",            color:"#FF7A1A"},
+  ECU:{name:"Ecuador",                color:"#FFD23F"},
+  SWE:{name:"Sweden",                 color:"#2D6BDF"},
+  TUN:{name:"Tunisia",                color:"#E2253B"},
+  ESP:{name:"Spain",                  color:"#FF2E2E"},
+  CPV:{name:"Cape Verde",             color:"#2D6BDF"},
+  BEL:{name:"Belgium",                color:"#E30613"},
+  EGY:{name:"Egypt",                  color:"#C8102E"},
+  KSA:{name:"Saudi Arabia",           color:"#1E924F"},
+  URU:{name:"Uruguay",                color:"#4DA3FF"},
+  IRN:{name:"Iran",                   color:"#1E924F"},
+  NZL:{name:"New Zealand",            color:"#C9CFD8"},
+  FRA:{name:"France",                 color:"#3B6BFF"},
+  SEN:{name:"Senegal",                color:"#1E924F"},
+  // upcoming Round 1 fixtures (here so they render once you add results)
+  IRQ:{name:"Iraq",                   color:"#2FB36B"},
+  NOR:{name:"Norway",                 color:"#E2253B"},
+  ARG:{name:"Argentina",              color:"#62B7E8"},
+  ALG:{name:"Algeria",                color:"#1E924F"},
+  AUT:{name:"Austria",                color:"#E2253B"},
+  JOR:{name:"Jordan",                 color:"#C8102E"},
+  POR:{name:"Portugal",               color:"#D7263D"},
+  DRC:{name:"DR Congo",               color:"#3FA9F5"},
+  ENG:{name:"England",                color:"#E6E6E6"},
+  CRO:{name:"Croatia",                color:"#E63946"},
+  GHA:{name:"Ghana",                  color:"#1E924F"},
+  PAN:{name:"Panama",                 color:"#C8102E"},
+  UZB:{name:"Uzbekistan",             color:"#3FA9F5"},
+  COL:{name:"Colombia",               color:"#FFD23F"}
+};
+</script>
+
+<div class="topbar" id="topbar"></div>
+<div class="wrap" id="app"></div>
+
+<script>
+/* =================== SCORING CONFIG =================== */
+const SCORING = { exact:3, close:1.5, win:1, miss:0, ciThreshold:1.5 };
+const fmtPts = p => Number.isInteger(p) ? String(p) : p.toFixed(1);
+
+// Madrid (CEST, UTC+2) kick-off -> US Eastern (EDT, UTC-4): subtract 6h
+function etFromMadrid(hhmm){
+  if(!hhmm) return "";
+  let [h,mn] = hhmm.split(":").map(Number);
+  h = (h - 6 + 24) % 24;
+  const ap = h<12 ? "AM" : "PM", h12 = h%12 || 12;
+  return `${h12}:${String(mn).padStart(2,"0")} ${ap} ET`;
+}
+
+/* =================== HELPERS =================== */
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const isMe = n => n === LEAGUE.me;
+const nameHTML = n => isMe(n)
+  ? `<span class="me">${esc(n)}<span class="you-tag">you</span></span>`
+  : esc(n);
+const namesHTML = arr => arr.map(nameHTML).join(", ");
+const teamInfo = code => NATION[code] || {name:code, color:"#9AA0A6"};
+
+// outcome from a scoreline: H / D / A
+const outcome = (h,a) => h>a ? "H" : h<a ? "A" : "D";
+
+// luminance + distance, for legibility / clash handling on the dark bg
+function rgb(hex){const x=hex.replace('#','');return [0,2,4].map(i=>parseInt(x.substr(i,2),16));}
+function lum(hex){const [r,g,b]=rgb(hex).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);});return .2126*r+.7152*g+.0722*b;}
+function dist(a,b){const A=rgb(a),B=rgb(b);return Math.sqrt((A[0]-B[0])**2+(A[1]-B[1])**2+(A[2]-B[2])**2);}
+const FALLBACK = ["#39B0FF","#3DDC97","#FF8C42","#B07BFF","#FF5DA2","#C9CFD8"];
+
+// returns legible, non-clashing {home, away} colours for a match
+function matchColors(m){
+  let home = teamInfo(m.home).color;
+  let away = teamInfo(m.away).color;
+  const fix = c => lum(c) < 0.16 ? "#C9CFD8" : c;     // too-dark -> silver
+  home = fix(home); away = fix(away);
+  if(dist(home,away) < 90){                            // clash -> recolour away
+    away = FALLBACK.find(c => dist(c,home) > 110) || "#C9CFD8";
+  }
+  return {home, away};
+}
+
+/* =================== ANALYSIS =================== */
+function entries(m){ return Object.entries(m.picks).map(([n,[h,a]]) => ({n,h,a})); }
+
+function splitCounts(m){
+  const c={H:0,D:0,A:0};
+  entries(m).forEach(p => c[outcome(p.h,p.a)]++);
+  return c;
+}
+
+function buckets(m){
+  const map={};
+  entries(m).forEach(p=>{
+    const k=p.h+"-"+p.a;
+    (map[k] = map[k] || {h:p.h,a:p.a,names:[]}).names.push(p.n);
+  });
+  return Object.values(map).sort((x,y)=>
+    y.names.length-x.names.length || (x.h+x.a)-(y.h+y.a) || (y.h-y.a)-(x.h-x.a));
+}
+
+// Closeness Index = |pred GD − actual GD| + |pred total − actual total| / 2
+function ci(p,f){
+  const gd  = Math.abs((p[0]-p[1]) - (f[0]-f[1]));
+  const tot = Math.abs((p[0]+p[1]) - (f[0]+f[1])) / 2;
+  return gd + tot;
+}
+function grade(pick, final){
+  if(pick[0]===final[0] && pick[1]===final[1]) return "exact";
+  const correct = outcome(pick[0],pick[1]) === outcome(final[0],final[1]);
+  if(correct && ci(pick,final) <= SCORING.ciThreshold) return "close";
+  if(correct) return "win";
+  return "miss";
+}
+
+// tag for a picks-row bucket
+function bucketTag(m, b, ctx){
+  const total=b.h+b.a, margin=Math.abs(b.h-b.a), out=outcome(b.h,b.a);
+  const incl = b.names.includes(LEAGUE.me) ? " · incl. you" : "";
+  if(b.names.length>1 && ctx.topKey===(b.h+"-"+b.a))
+    return {e:"⭐", t:"consensus"+incl};
+  if(total>=5 || margin>=4)
+    return {e:"🤯", t:"unhinged"};
+  if(out==="D" && ctx.counts.D===1)
+    return {e:"🧊", t:"lone draw"};
+  if(out!=="D" && out===ctx.minoritySide)
+    return {e:"🃏", t:"backs "+(out==="H"?m.home:m.away)};
+  if(b.names.length===1)
+    return {e:"🧊", t:"lone wolf"};
+  return null;
+}
+
+function analysisCtx(m){
+  const counts=splitCounts(m);
+  const bs=buckets(m);
+  const top=bs.find(b=>b.names.length>1);
+  const topKey=top?(top.h+"-"+top.a):null;
+  let minoritySide=null;
+  if(counts.H>0 && counts.A>0) minoritySide = counts.H<counts.A ? "H":"A";
+  return {counts, buckets:bs, topKey, minoritySide, n:entries(m).length};
+}
+
+/* =================== STORY + ROASTS (auto) =================== */
+function autoAngle(m, ctx){
+  if(m.angle) return m.angle;
+  const {counts,n}=ctx, hi=teamInfo(m.home), ay=teamInfo(m.away);
+  if(counts.H===n) return `Unanimous — all ${n} are on ${hi.name}.`;
+  if(counts.A===n) return `Unanimous — all ${n} are on ${ay.name}.`;
+  if(counts.D===n) return `Bizarrely unanimous — every single one of you smells a draw.`;
+  const win = counts.H>=counts.A ? hi.name : ay.name;
+  const winC = Math.max(counts.H,counts.A);
+  const others = n - winC;
+  return `${winC}/${n} back ${win}${counts.D?` · ${counts.D} sitting on a draw`:""} — ${others} brave soul${others===1?"":"s"} dare to differ.`;
+}
+
+const pick = (arr,seed)=>arr[Math.abs(seed)%arr.length];
+function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return h;}
+
+function autoRoasts(m, ctx){
+  const out=[], seed=hash(m.id), hi=teamInfo(m.home), ay=teamInfo(m.away);
+  const big = ctx.buckets.filter(b => (b.h+b.a)>=5 || Math.abs(b.h-b.a)>=4);
+  big.forEach(b=>{
+    out.push(pick([
+      `${namesHTML(b.names)} fancy a ${b.h}-${b.a} demolition — mate, this is football, not basketball.`,
+      `A ${b.h}-${b.a}? ${namesHTML(b.names)} have clearly never seen a defensive midfielder.`,
+      `${namesHTML(b.names)} predicting ${b.h}-${b.a} — leave some goals for the rest of the tournament.`
+    ], seed+b.h+b.a));
+  });
+  const draws = ctx.buckets.filter(b=>b.h===b.a);
+  if(ctx.counts.D===1 && draws.length){
+    out.push(pick([
+      `${namesHTML(draws[0].names)} is the lone fence-sitter calling a draw — bold spot, hope the splinters are worth it.`,
+      `Everyone picked a winner and ${namesHTML(draws[0].names)} picked... a handshake. Brave.`
+    ], seed));
+  }
+  if(ctx.minoritySide){
+    const side=ctx.minoritySide, team=(side==="H"?hi:ay).name;
+    const rebels=ctx.buckets.filter(b=>outcome(b.h,b.a)===side).flatMap(b=>b.names);
+    if(rebels.length) out.push(pick([
+      `${namesHTML(rebels)} backing ${team} against the grain — genuine insight or just allergic to the consensus?`,
+      `${namesHTML(rebels)} fading the crowd on ${team}. Contrarian genius, or about to find out why it's the minority pick.`
+    ], seed+side.charCodeAt(0)));
+  }
+  const top=ctx.buckets.find(b=>b.names.length>1 && (b.h+"-"+b.a)===ctx.topKey);
+  if(top && top.names.length>=3){
+    out.push(`${top.names.length} of you copy-pasted the exact same ${top.h}-${top.a} — original thinking is clearly overrated.`);
+  }
+  if(!out.length) out.push("Genuinely sensible spread this week — no one to roast. Suspicious.");
+  return out.slice(0,4);
+}
+
+/* =================== WHO SCORES IF… =================== */
+function candidateFinals(m){
+  const set=new Set();
+  buckets(m).forEach(b=>set.add(b.h+"-"+b.a));     // every picked score is relevant
+  ["1-0","0-1","1-1","2-1","1-2","2-0","0-2","2-2","3-1","1-3","0-0"].forEach(s=>set.add(s));
+  // if people lean blowout, surface a lopsided option or two
+  const maxMargin=Math.max(...entries(m).map(p=>Math.abs(p.h-p.a)));
+  if(maxMargin>=3){["3-0","4-1","4-0"].forEach(s=>set.add(s));}
+  const finals=[...set].map(s=>s.split("-").map(Number));
+  // relevance: picked scores first, then lower total goals, then smaller margin
+  const pickedKeys=new Set(buckets(m).map(b=>b.h+"-"+b.a));
+  finals.sort((x,y)=>{
+    const px=pickedKeys.has(x.join("-"))?0:1, py=pickedKeys.has(y.join("-"))?0:1;
+    return px-py || (x[0]+x[1])-(y[0]+y[1]) || Math.abs(x[0]-x[1])-Math.abs(y[0]-y[1]);
+  });
+  return finals.slice(0,9);
+}
+function gradeAll(m, final){
+  const ex=[], cl=[];
+  entries(m).forEach(p=>{
+    const g=grade([p.h,p.a], final);
+    if(g==="exact") ex.push(p.n); else if(g==="close") cl.push(p.n);
+  });
+  return {ex, cl};
+}
+
+/* =================== LEADERBOARD =================== */
+function standings(){
+  const rows={};
+  LEAGUE.matches.forEach(m=>{
+    if(!m.result) return;
+    entries(m).forEach(p=>{
+      const r=rows[p.n] = rows[p.n] || {n:p.n,played:0,exact:0,close:0,win:0,pts:0};
+      const g=grade([p.h,p.a], m.result);
+      r.played++; r.pts += SCORING[g];
+      if(g==="exact") r.exact++; else if(g==="close") r.close++; else if(g==="win") r.win++;
+    });
+  });
+  // Superbru tie-break order: points, then most correct results, then exacts, then name
+  const correct = r => r.exact + r.close + r.win;
+  return Object.values(rows).sort((a,b)=>
+    b.pts-a.pts || correct(b)-correct(a) || b.exact-a.exact || a.n.localeCompare(b.n));
+}
+
+/* =================== RENDER: FLYER =================== */
+function renderMatch(m){
+  const col=matchColors(m), ctx=analysisCtx(m);
+  const hi=teamInfo(m.home), ay=teamInfo(m.away);
+  const stage = m.stage || (m.result ? "Recap" : "Preview");
+  const eyebrow = `${LEAGUE.name} · ${m.round}${m.date ? " · "+m.date : ""} · ${stage}`.toUpperCase();
+
+  // consensus bar
+  const n=ctx.n, c=ctx.counts;
+  const seg=(k,color)=> c[k] ? `<i style="width:${100*c[k]/n}%;background:${color}"></i>` : "";
+  const unanimous = [c.H,c.D,c.A].filter(x=>x===n).length===1;
+  const cap = unanimous
+    ? `Unanimous · ${n}/${n} on ${(c.H===n?hi:c.A===n?ay:{name:"a draw"}).name}`
+    : `${c.H} ${hi.name} · ${c.D} draw · ${c.A} ${ay.name}`;
+
+  // picks rows
+  const picksHTML = ctx.buckets.map(b=>{
+    const o=outcome(b.h,b.a), tag=bucketTag(m,b,ctx);
+    const g = m.result ? grade([b.h,b.a], m.result) : null;
+    const gBadge = g && g!=="miss" ? `<span class="grade ${g}">${g.toUpperCase()}</span>` : "";
+    return `<div class="pick-row">
+      <div class="pill ${o}">${b.h} - ${b.a}</div>
+      <div class="names">${namesHTML(b.names)}${gBadge}</div>
+      ${tag?`<div class="tag">${tag.e} ${tag.t}</div>`:""}
+    </div>`;
+  }).join("");
+
+  // scenarios
+  let finals = candidateFinals(m);
+  let scnHTML = "";
+  if(m.result){
+    const fk=m.result.join("-");
+    finals = [m.result, ...finals.filter(f=>f.join("-")!==fk)].slice(0,8);
+  }
+  scnHTML = finals.map((f,i)=>{
+    const {ex,cl}=gradeAll(m,f), o=outcome(f[0],f[1]);
+    const isFinal = m.result && f.join("-")===m.result.join("-");
+    let lines="";
+    if(ex.length) lines += `<div class="line"><span class="k ex">EXACT</span>${namesHTML(ex)}</div>`;
+    if(cl.length) lines += `<div class="line"><span class="k cl">CLOSE</span>${namesHTML(cl)}</div>`;
+    if(!lines) lines = `<div class="line miss">nobody — everyone misses</div>`;
+    return `<div class="scn ${isFinal?'final':''}">
+      <div class="pill ${o}">${f[0]} - ${f[1]}</div>
+      <div class="body">${isFinal?'<span class="finaltag">★ FULL TIME</span>':''}${lines}</div>
+    </div>`;
+  }).join("");
+
+  const roasts = autoRoasts(m,ctx).map(r=>`<p>${r}</p>`).join("");
+
+  return `<div class="flyer" style="--home:${col.home};--away:${col.away}">
+    <div class="eyebrow">${esc(eyebrow)}</div>
+    <div class="head">
+      <div class="ko">
+        <div class="madrid">${esc(m.kickoff.madrid)}<span>Madrid</span></div>
+        <div class="et">${esc(m.kickoff.et || etFromMadrid(m.kickoff.madrid))}</div>
+      </div>
+      ${m.group ? `<div class="group-pill">${esc(m.group)}</div>` : ""}
+    </div>
+
+    <div class="codes">
+      <span class="code home">${esc(m.home)}</span>
+      <span class="vs">vs</span>
+      <span class="code away">${esc(m.away)}</span>
+    </div>
+    <div class="teamnames">${esc(hi.name)} &nbsp;·&nbsp; ${esc(ay.name)}</div>
+    ${m.result?`<div class="ftbanner"><span class="lbl">FULL TIME</span>${m.result[0]} – ${m.result[1]}</div>`:""}
+
+    <div class="angle">${autoAngle(m,ctx)}</div>
+
+    <div class="sec-label">Consensus</div>
+    <div class="cbar">${seg("H",col.home)}${seg("D","var(--draw)")}${seg("A",col.away)}</div>
+    <div class="cap">${esc(cap)}</div>
+
+    <div class="sec-label">The Picks</div>
+    ${picksHTML}
+
+    <div class="sec-label">Roast</div>
+    <div class="roast"><h4>League banter</h4>${roasts}</div>
+
+    <div class="sec-label">${m.result?"How it scored":"Who scores if…"}</div>
+    <div class="legend">🟢 <b>Exact</b> = on the nose · 🟡 <b>Close</b> = right result &amp; within ~1 goal (CI ≤ ${SCORING.ciThreshold})</div>
+    ${scnHTML}
+
+    <div class="footer">
+      <span>${m.venue ? esc(m.venue)+" · " : ""}Madrid time</span>
+      <span class="star">★ World Cup 2026</span>
+    </div>
+  </div>`;
+}
+
+/* =================== RENDER: LEADERBOARD =================== */
+function renderBoard(){
+  const rows=standings();
+  const played=LEAGUE.matches.filter(m=>m.result).length;
+  if(!rows.length){
+    return `<div class="board"><h2>SEASON LEADERBOARD</h2>
+      <p class="sub">No finished matches yet — add a <code>result:[h,a]</code> to a match and the table fills in automatically.</p></div>`;
+  }
+  const body = rows.map((r,i)=>`<tr class="${isMe(r.n)?'you':''}">
+    <td class="rank">${i+1}</td>
+    <td class="name">${nameHTML(r.n)}</td>
+    <td>${r.played}</td>
+    <td>${r.exact}</td>
+    <td>${r.close}</td>
+    <td>${r.win}</td>
+    <td class="pts">${fmtPts(r.pts)}</td>
+  </tr>`).join("");
+  return `<div class="board">
+    <h2>SEASON LEADERBOARD</h2>
+    <p class="sub">${LEAGUE.name} · ${LEAGUE.season} · ${played} match${played===1?"":"es"} scored</p>
+    <table>
+      <tr><th></th><th>Member</th><th>P</th><th>Exact</th><th>Close</th><th>Win</th><th>Pts</th></tr>
+      ${body}
+    </table>
+    <p class="legendline">Scoring · Exact <b>${SCORING.exact}</b> · Close <b>${SCORING.close}</b> · Correct result <b>${SCORING.win}</b> · Miss <b>${SCORING.miss}</b>.
+    Closeness Index = |your goal diff − actual| + |your total − actual| ÷ 2; CLOSE needs the right result and CI ≤ ${SCORING.ciThreshold}.</p>
+  </div>`;
+}
+
+/* =================== NAV + ROUTING =================== */
+function renderNav(active){
+  const rounds = [...new Set(LEAGUE.matches.map(m=>m.round))];
+  const activeMatch = active==="board" ? null : (LEAGUE.matches.find(m=>m.id===active) || LEAGUE.matches[0]);
+  const activeRound = activeMatch ? activeMatch.round : null;
+
+  const roundBtns = rounds.map(r=>
+    `<button class="nav-btn round ${activeRound===r?'active':''}" data-round="${esc(r)}">${esc(r)}</button>`).join("");
+
+  let chips = "";
+  if(activeRound){
+    chips = LEAGUE.matches.filter(m=>m.round===activeRound).map(m=>{
+      const ft = m.result
+        ? `<span class="ft">${m.result[0]}-${m.result[1]}</span>`
+        : `<span class="ft upc">${esc(m.date || "·")}</span>`;
+      return `<button class="nav-btn ${active===m.id?'active':''}" data-view="${m.id}">${esc(m.home)} v ${esc(m.away)} ${ft}</button>`;
+    }).join("");
+  }
+
+  document.getElementById("topbar").innerHTML =
+    `<div class="navrow">
+       <div class="brand">${LEAGUE.name}<small>MATCHDAY</small></div>
+       ${roundBtns}
+       <span class="nav-spacer"></span>
+       <button class="nav-btn ${active==='board'?'active':''}" data-view="board">🏆 Leaderboard</button>
+     </div>
+     ${chips ? `<div class="navrow chips">${chips}</div>` : ""}`;
+
+  document.querySelectorAll(".nav-btn[data-round]").forEach(b=>
+    b.onclick=()=>{ const first=LEAGUE.matches.find(m=>m.round===b.dataset.round); if(first) show(first.id); });
+  document.querySelectorAll(".nav-btn[data-view]").forEach(b=>
+    b.onclick=()=>show(b.dataset.view));
+}
+function show(view){
+  renderNav(view);
+  const app=document.getElementById("app");
+  if(view==="board"){ app.innerHTML = renderBoard(); }
+  else{
+    const m=LEAGUE.matches.find(x=>x.id===view) || LEAGUE.matches[0];
+    app.innerHTML = renderMatch(m);
+  }
+  // keep the active match chip visible in the scrollable strip
+  const act=document.querySelector(".navrow.chips .nav-btn.active");
+  if(act && act.scrollIntoView) act.scrollIntoView({inline:"center", block:"nearest"});
+  window.scrollTo(0,0);
+}
+show(LEAGUE.matches[0].id);
+</script>
+</body>
+</html>
