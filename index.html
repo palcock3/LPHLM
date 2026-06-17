@@ -168,7 +168,7 @@
 const M = (home, away, date, time, result, picks, opts={}) => ({
   id: (home+"-"+away+"-"+date).toLowerCase().replace(/\s+/g,""),
   round: opts.round || "Round 1", stage: opts.stage,
-  home, away, date, kickoff:{ madrid:time, et:opts.et },
+  home, away, date, kickoff:{ et:time },   // `time` is the Superbru kick-off, shown in US Eastern
   group: opts.group || "", venue: opts.venue || "", angle: opts.angle || "",
   result, picks
 });
@@ -323,14 +323,20 @@ const NATION = {
 const SCORING = { exact:3, close:1.5, win:1, miss:0, ciThreshold:1.5 };
 const fmtPts = p => Number.isInteger(p) ? String(p) : p.toFixed(1);
 
-// Madrid (CEST, UTC+2) kick-off -> US Eastern (EDT, UTC-4): subtract 6h
-function etFromMadrid(hhmm){
+// Superbru shows kick-offs in US Eastern (EDT, UTC-4). Madrid (CEST, UTC+2) = ET + 6h.
+function addH(hhmm, add){
   if(!hhmm) return "";
   let [h,mn] = hhmm.split(":").map(Number);
-  h = (h - 6 + 24) % 24;
-  const ap = h<12 ? "AM" : "PM", h12 = h%12 || 12;
-  return `${h12}:${String(mn).padStart(2,"0")} ${ap} ET`;
+  h = (h + add + 48) % 24;
+  return `${String(h).padStart(2,"0")}:${String(mn).padStart(2,"0")}`;
 }
+function to12(hhmm){
+  if(!hhmm) return "";
+  let [h,mn] = hhmm.split(":").map(Number);
+  const ap = h<12 ? "AM" : "PM", h12 = h%12 || 12;
+  return `${h12}:${String(mn).padStart(2,"0")} ${ap}`;
+}
+const madridFromET = et => addH(et, 6);
 
 /* =================== HELPERS =================== */
 const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -568,8 +574,8 @@ function renderMatch(m){
     <div class="eyebrow">${esc(eyebrow)}</div>
     <div class="head">
       <div class="ko">
-        <div class="madrid">${esc(m.kickoff.madrid)}<span>Madrid</span></div>
-        <div class="et">${esc(m.kickoff.et || etFromMadrid(m.kickoff.madrid))}</div>
+        <div class="madrid">${esc(madridFromET(m.kickoff.et))}<span>Madrid</span></div>
+        <div class="et">${esc(to12(m.kickoff.et))} ET</div>
       </div>
       ${m.group ? `<div class="group-pill">${esc(m.group)}</div>` : ""}
     </div>
